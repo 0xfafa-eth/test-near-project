@@ -20,6 +20,7 @@ pub struct Contract {
 #[serde(crate = "near_sdk::serde")]
 pub struct Game {
     owner_id: AccountId,
+    is_end: bool,
     prize_pool_amount: U128,
     player_one: PlayerData,
     player_two: PlayerData,
@@ -39,7 +40,15 @@ pub struct PlayerData {
 #[near_bindgen]
 impl Contract {
     pub fn get_game(&self, id: U128) -> Game {
-        return self.games.get(&id).unwrap().clone();
+        return self.games.get(&id).unwrap();
+    }
+
+    pub fn get_latest_game(&self) -> Game {
+        return self.games.get(&self.next_game_id).unwrap();
+    }
+
+    pub fn get_game_id(&self) -> U128 {
+        return self.next_game_id;
     }
 
     #[init]
@@ -58,6 +67,7 @@ impl Contract {
         self.next_game_id = near_sdk::json_types::U128(self.next_game_id.0 + 1);
         let new_game = Game {
             owner_id: sender,
+            is_end: false,
             prize_pool_amount: near_sdk::json_types::U128(amount),
             player_one: PlayerData {
                 play_address: player_one_address,
@@ -84,6 +94,7 @@ impl Contract {
     ) {
         let mut game = self.games.remove(&game_id).unwrap();
         let sender = env::predecessor_account_id();
+        require!(!game.is_end, "Current game is end");
         assert!(game.player_one.play_address == sender || game.player_two.play_address == sender);
         let player_data_mut_ref = if game.player_one.play_address == sender {
             &mut game.player_one
@@ -99,6 +110,7 @@ impl Contract {
 
     pub fn reveal_decision(&mut self, game_id: U128, salt: String) {
         let mut game = self.games.remove(&game_id).unwrap();
+        require!(!game.is_end, "Current game is end");
         require!(
             env::block_timestamp_ms() < game.expiration_timestamp_in_seconds,
             "Not Expiration"
@@ -148,21 +160,23 @@ impl Contract {
             {
                 let player_one_amount = game.prize_pool_amount.0 / 2;
                 let player_two_amount = game.prize_pool_amount.0 - player_one_amount;
-                Promise::new(game.player_one.play_address).transfer(player_one_amount);
-                Promise::new(game.player_two.play_address).transfer(player_two_amount);
+                Promise::new(game.player_one.play_address.clone()).transfer(player_one_amount);
+                Promise::new(game.player_two.play_address.clone()).transfer(player_two_amount);
             } else if game.player_one.decision != game.player_two.decision {
                 let steal_player_address = if game.player_one.decision == 1 {
-                    game.player_two.play_address
+                    game.player_two.play_address.clone()
                 } else {
-                    game.player_one.play_address
+                    game.player_one.play_address.clone()
                 };
                 Promise::new(steal_player_address).transfer(game.prize_pool_amount.into());
             } else {
-                Promise::new(game.owner_id).transfer(game.prize_pool_amount.into());
+                Promise::new(game.owner_id.clone()).transfer(game.prize_pool_amount.into());
             };
-        } else {
-            self.games.insert(&game_id, &game);
-        }
+
+            game.is_end = true;
+        };
+
+        self.games.insert(&game_id, &game);
     }
 
     #[payable]

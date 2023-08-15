@@ -26,9 +26,13 @@
     "url": "^0.11.1"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@near-wallet-selector/core": "^8.5.0",
     "@near-wallet-selector/modal-ui": "^8.5.0",
     "@near-wallet-selector/my-near-wallet": "^8.5.0",
+    "framer-motion": "^10.15.2",
     "near-api-js": "^2.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

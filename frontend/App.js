@@ -2,6 +2,7 @@ import "regenerator-runtime/runtime";
 import React from "react";
 import { Buffer } from "buffer";
 import "./assets/global.css";
+import { ChakraProvider } from "@chakra-ui/react";
 
 import { EducationalText, SignInPrompt, SignOutButton } from "./ui-components";
 
@@ -79,66 +80,68 @@ export default function App({ isSignedIn, contractId, wallet }) {
 
   return (
     <>
-      <SignOutButton
-        accountId={wallet.accountId}
-        onClick={() => wallet.signOut()}
-      />
-      <main className={uiPleaseWait ? "please-wait" : ""}>
-        <form onSubmit={createGame} className="create">
-          <br></br>
-          <div>
-            <label>Input player one address: </label>
-            <input autoComplete="off" id="player_one" />
-          </div>
-          <div>
-            <label>Input player two address: </label>
-            <input autoComplete="off" id="player_two" />
-          </div>
-          <br />
-          <button>
-            <span>Create</span>
-            <div className="loader"></div>
-          </button>
-        </form>
-        <form onSubmit={submitDecision} className="create">
-          <div>
-            <label>Input your game id: </label>
-            <input autoComplete="off" id="game_id" />
+      <ChakraProvider>
+        <SignOutButton
+          accountId={wallet.accountId}
+          onClick={() => wallet.signOut()}
+        />
+        <main className={uiPleaseWait ? "please-wait" : ""}>
+          <form onSubmit={createGame} className="create">
+            <br></br>
             <div>
-              <label>Input your decision hash :</label>
-
-              <input autoComplete="off" id="decision_hash" />
+              <label>Input player one address: </label>
+              <input autoComplete="off" id="player_one" />
             </div>
-
             <div>
-              <label>Input your salt hash :</label>
-              <input autoComplete="off" id="salt_hash" />
+              <label>Input player two address: </label>
+              <input autoComplete="off" id="player_two" />
             </div>
+            <br />
             <button>
-              <span> submit </span>
+              <span>Create</span>
               <div className="loader"></div>
             </button>
-          </div>
-        </form>
-
-        <form onSubmit={revealDecision} className="create">
-          <div>
-            <label>Input your game id: </label>
-            <input autoComplete="off" id="game_id" />
-
+          </form>
+          <form onSubmit={submitDecision} className="create">
             <div>
-              <label>Input your salt :</label>
-              <input autoComplete="off" id="salt" />
-            </div>
-            <button>
-              <span> reveal </span>
-              <div className="loader"></div>
-            </button>
-          </div>
-        </form>
+              <label>Input your game id: </label>
+              <input autoComplete="off" id="game_id" />
+              <div>
+                <label>Input your decision hash :</label>
 
-        {/* <EducationalText /> */}
-      </main>
+                <input autoComplete="off" id="decision_hash" />
+              </div>
+
+              <div>
+                <label>Input your salt hash :</label>
+                <input autoComplete="off" id="salt_hash" />
+              </div>
+              <button>
+                <span> submit </span>
+                <div className="loader"></div>
+              </button>
+            </div>
+          </form>
+
+          <form onSubmit={revealDecision} className="create">
+            <div>
+              <label>Input your game id: </label>
+              <input autoComplete="off" id="game_id" />
+
+              <div>
+                <label>Input your salt :</label>
+                <input autoComplete="off" id="salt" />
+              </div>
+              <button>
+                <span> reveal </span>
+                <div className="loader"></div>
+              </button>
+            </div>
+          </form>
+
+          {/* <EducationalText /> */}
+        </main>
+      </ChakraProvider>
     </>
   );
 }
