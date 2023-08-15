@@ -1,60 +1,80 @@
 import "regenerator-runtime/runtime";
 import React from "react";
-
+import { Buffer } from "buffer";
 import "./assets/global.css";
 
 import { EducationalText, SignInPrompt, SignOutButton } from "./ui-components";
 
 export default function App({ isSignedIn, contractId, wallet }) {
-  const [valueFromBlockchain, setValueFromBlockchain] = React.useState();
-
-  const [uiPleaseWait, setUiPleaseWait] = React.useState(true);
+  const [uiPleaseWait, setUiPleaseWait] = React.useState(false);
 
   // Get blockchian state once on component load
-  React.useEffect(() => {
-    getGreeting()
-      .then(setValueFromBlockchain)
-      .catch(alert)
-      .finally(() => {
-        setUiPleaseWait(false);
-      });
-  }, []);
+  React.useEffect(() => {}, []);
 
   /// If user not signed-in with wallet - show prompt
   if (!isSignedIn) {
     // Sign-in flow will reload the page later
-    return (
-      <SignInPrompt
-        greeting={valueFromBlockchain}
-        onClick={() => wallet.signIn()}
-      />
-    );
+    return <SignInPrompt onClick={() => wallet.signIn()} />;
   }
 
-  function changeGreeting(e) {
+  function createGame(e) {
     e.preventDefault();
     setUiPleaseWait(true);
-    const { greetingInput } = e.target.elements;
 
-    // use the wallet to send the greeting to the contract
+    const { player_one, player_two } = e.target.elements;
+
     wallet
       .callMethod({
-        method: "set_greeting",
-        args: { message: greetingInput.value },
+        method: "create_game",
+        args: {
+          player_one_address: player_one.value,
+          player_two_address: player_two.value,
+        },
         contractId,
+        deposit: "1000000000000000000000000",
       })
-      .then(async () => {
-        return getGreeting();
-      })
-      .then(setValueFromBlockchain)
       .finally(() => {
         setUiPleaseWait(false);
       });
   }
 
-  function getGreeting() {
-    // use the wallet to query the contract's greeting
-    return wallet.viewMethod({ method: "get_greeting", contractId });
+  function submitDecision(e) {
+    e.preventDefault();
+    setUiPleaseWait(true);
+
+    const { salt_hash, game_id, decision_hash } = e.target.elements;
+    wallet
+      .callMethod({
+        method: "submit_decision",
+        args: {
+          game_id: `${game_id.value}`,
+          decision_hash: Array.from(Buffer.from(decision_hash.value, "hex")),
+          salt_hash: Array.from(Buffer.from(salt_hash.value, "hex")),
+        },
+        contractId,
+      })
+      .finally(() => {
+        setUiPleaseWait(false);
+      });
+  }
+
+  function revealDecision(e) {
+    e.preventDefault();
+    setUiPleaseWait(true);
+
+    const { game_id, salt } = e.target.elements;
+    wallet
+      .callMethod({
+        method: "reveal_decision",
+        args: {
+          game_id: game_id.value,
+          salt: `${salt.value}`,
+        },
+        contractId,
+      })
+      .finally(() => {
+        setUiPleaseWait(false);
+      });
   }
 
   return (
@@ -64,25 +84,60 @@ export default function App({ isSignedIn, contractId, wallet }) {
         onClick={() => wallet.signOut()}
       />
       <main className={uiPleaseWait ? "please-wait" : ""}>
-        <h1>
-          The contract says:{" "}
-          <span className="greeting">{valueFromBlockchain}</span>
-        </h1>
-        <form onSubmit={changeGreeting} className="change">
-          <label>Change greeting:</label>
+        <form onSubmit={createGame} className="create">
+          <br></br>
           <div>
-            <input
-              autoComplete="off"
-              defaultValue={valueFromBlockchain}
-              id="greetingInput"
-            />
+            <label>Input player one address: </label>
+            <input autoComplete="off" id="player_one" />
+          </div>
+          <div>
+            <label>Input player two address: </label>
+            <input autoComplete="off" id="player_two" />
+          </div>
+          <br />
+          <button>
+            <span>Create</span>
+            <div className="loader"></div>
+          </button>
+        </form>
+        <form onSubmit={submitDecision} className="create">
+          <div>
+            <label>Input your game id: </label>
+            <input autoComplete="off" id="game_id" />
+            <div>
+              <label>Input your decision hash :</label>
+
+              <input autoComplete="off" id="decision_hash" />
+            </div>
+
+            <div>
+              <label>Input your salt hash :</label>
+              <input autoComplete="off" id="salt_hash" />
+            </div>
             <button>
-              <span>Save</span>
+              <span> submit </span>
               <div className="loader"></div>
             </button>
           </div>
         </form>
-        <EducationalText />
+
+        <form onSubmit={revealDecision} className="create">
+          <div>
+            <label>Input your game id: </label>
+            <input autoComplete="off" id="game_id" />
+
+            <div>
+              <label>Input your salt :</label>
+              <input autoComplete="off" id="salt" />
+            </div>
+            <button>
+              <span> reveal </span>
+              <div className="loader"></div>
+            </button>
+          </div>
+        </form>
+
+        {/* <EducationalText /> */}
       </main>
     </>
   );

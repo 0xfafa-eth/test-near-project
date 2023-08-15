@@ -12,7 +12,6 @@ use near_sdk::{
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
-    owner_id: AccountId,
     next_game_id: U128,
     games: UnorderedMap<U128, Game>,
 }
@@ -44,14 +43,14 @@ impl Contract {
     }
 
     #[init]
-    pub fn new(owner_id: AccountId) -> Self {
+    pub fn new() -> Self {
         assert!(!env::state_exists(), "Already initialized");
         Self {
-            owner_id,
             next_game_id: near_sdk::json_types::U128(0),
             games: UnorderedMap::new("map-game".as_bytes()),
         }
     }
+
     #[payable]
     pub fn create_game(&mut self, player_one_address: AccountId, player_two_address: AccountId) {
         let sender: AccountId = env::predecessor_account_id();
@@ -72,10 +71,9 @@ impl Contract {
                 salt_hash: Option::None,
                 decision: 0,
             },
-            expiration_timestamp_in_seconds: env::block_timestamp() + 5 * 60,
+            expiration_timestamp_in_seconds: env::block_timestamp_ms() + 10 * 60 * 1000,
         };
         self.games.insert(&self.next_game_id, &new_game);
-        Promise::new(self.owner_id.clone()).transfer(amount);
     }
 
     pub fn submit_decision(
@@ -101,10 +99,10 @@ impl Contract {
 
     pub fn reveal_decision(&mut self, game_id: U128, salt: String) {
         let mut game = self.games.remove(&game_id).unwrap();
-        // require!(
-        //     game.expiration_timestamp_in_seconds >= env::block_timestamp(),
-        //     "Not Expiration"
-        // );
+        require!(
+            env::block_timestamp_ms() < game.expiration_timestamp_in_seconds,
+            "Not Expiration"
+        );
 
         require!(
             game.player_one.decision_hash.is_some() && game.player_two.decision_hash.is_some()
@@ -171,7 +169,7 @@ impl Contract {
     pub fn release_funds_after_expiration(&mut self, game_id: U128) {
         let game = self.games.remove(&game_id).unwrap();
         require!(
-            game.expiration_timestamp_in_seconds < env::block_timestamp(),
+            game.expiration_timestamp_in_seconds < env::block_timestamp_ms(),
             "Not Expiration"
         );
         if game.player_one.decision == game.player_two.decision {
@@ -210,14 +208,14 @@ mod tests {
 
     #[test]
     fn test_new() {
-        let mut contract = Contract::new(accounts(1).into());
+        let mut contract = Contract::new();
         get_context(accounts(1));
         contract.create_game(accounts(2).into(), accounts(3).into())
     }
 
     #[test]
     fn test_submit_decision() {
-        let mut contract = Contract::new(accounts(1).into());
+        let mut contract = Contract::new();
         get_context(accounts(1));
         contract.create_game(accounts(2).into(), accounts(3).into());
         get_context(accounts(2));
@@ -226,7 +224,7 @@ mod tests {
 
     #[test]
     fn test_reveal_decision() {
-        let mut contract = Contract::new(accounts(1).into());
+        let mut contract = Contract::new();
         get_context(accounts(1));
         contract.create_game(accounts(2).into(), accounts(3).into());
         get_context(accounts(2));
@@ -244,7 +242,7 @@ mod tests {
         let mut ctx = get_context(accounts(1));
         testing_env!(ctx.build());
         println!("{}", ctx.context.signer_account_id);
-        let mut contract = Contract::new(accounts(0).into());
+        let mut contract = Contract::new();
         println!("{}", ctx.context.signer_account_id);
         testing_env!(ctx
             .attached_deposit(7 * NEAR)
