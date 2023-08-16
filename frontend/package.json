@@ -1,56 +1,44 @@
 {
-  "name": "my-near-app",
-  "version": "1.0.0",
-  "license": "(MIT AND Apache-2.0)",
+  "name": "split-near-demo-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "./start.sh",
-    "build": "parcel build index.html --public-url ./"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.22.10",
-    "@babel/preset-env": "7.13.8",
-    "@babel/preset-react": "^7.22.5",
-    "@types/node": "^20.5.0",
-    "buffer": "^6.0.3",
-    "env-cmd": "^10.1.0",
-    "events": "^3.3.0",
-    "https-browserify": "^1.0.0",
-    "nodemon": "^2.0.22",
-    "parcel": "^2.9.3",
-    "process": "^0.11.10",
-    "punycode": "^1.4.1",
-    "react-test-renderer": "^18.2.0",
-    "stream-http": "^3.2.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
-    "url": "^0.11.1"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.0",
     "@chakra-ui/react": "^2.8.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@near-wallet-selector/core": "^8.5.0",
     "@near-wallet-selector/modal-ui": "^8.5.0",
     "@near-wallet-selector/my-near-wallet": "^8.5.0",
+    "@near-wallet-selector/wallet-connect": "^8.5.0",
+    "buffer": "^6.0.3",
+    "copy-to-clipboard": "^3.3.3",
     "framer-motion": "^10.15.2",
     "near-api-js": "^2.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "regenerator-runtime": "^0.13.11"
+    "react-hook-form": "^7.45.4",
+    "react-router-dom": "^6.15.0",
+    "rxjs": "^7.8.1"
   },
-  "resolutions": {
-    "@babel/preset-env": "7.13.8"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-react-swc": "^3.3.2",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vite-plugin-node-polyfills": "^0.11.1"
   }
 }

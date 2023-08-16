@@ -51,6 +51,25 @@ impl Contract {
         return self.next_game_id;
     }
 
+    pub fn get_latest_some_games(&self, amount: U128) -> (Vec<U128>, Vec<Game>) {
+        let mut index = self.next_game_id;
+        let mut vec_u128 = vec![];
+        let mut vec_game = vec![];
+        let mut i = 0;
+        while i < amount.0 {
+            if index.0 > 0 {
+                let game: Game = self.games.get(&index).unwrap();
+                vec_u128.push(index);
+                vec_game.push(game);
+            } else {
+                break;
+            }
+            index = near_sdk::json_types::U128(index.0 - 1);
+            i = i + 1;
+        }
+        (vec_u128, vec_game)
+    }
+
     #[init]
     pub fn new() -> Self {
         assert!(!env::state_exists(), "Already initialized");
