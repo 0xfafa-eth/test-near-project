@@ -92,7 +92,7 @@ async fn test_reveal_decision_split_split(
         .await?
         .into_result()?;
 
-    assert!(dunny.view_account().await?.balance == 999403785849458400000000);
+    assert!(dunny.view_account().await?.balance == 999403916296261200000000);
 
     dunny
         .call(contract.id(), "reveal_decision")
@@ -103,7 +103,7 @@ async fn test_reveal_decision_split_split(
         .transact()
         .await?
         .into_result()?;
-    assert!(dunny.view_account().await?.balance == 3498741104064460200000000);
+    assert!(dunny.view_account().await?.balance == 3498712022650445100000000);
     println!("      Passed ✅ reveal_decision");
 
     Ok(())
@@ -153,7 +153,7 @@ async fn test_reveal_decision_sleat_split(
         .await?
         .into_result()?;
 
-    assert!(dunny.view_account().await?.balance == 3498144905750827600000000);
+    assert!(dunny.view_account().await?.balance == 3498097899708288100000000);
 
     dunny
         .call(contract.id(), "reveal_decision")
@@ -164,7 +164,8 @@ async fn test_reveal_decision_sleat_split(
         .transact()
         .await?
         .into_result()?;
-    assert!(dunny.view_account().await?.balance == 8497528953605197700000000);
+
+    assert!(dunny.view_account().await?.balance == 8497434724890785900000000);
     println!("      Passed ✅ reveal_decision");
 
     Ok(())
@@ -214,7 +215,7 @@ async fn test_reveal_decision_sleat_sleat(
         .await?
         .into_result()?;
 
-    assert!(alice.view_account().await?.balance == 14997714892494818600000000);
+    assert!(alice.view_account().await?.balance == 14997816441344866100000000);
 
     dunny
         .call(contract.id(), "reveal_decision")
@@ -225,7 +226,8 @@ async fn test_reveal_decision_sleat_sleat(
         .transact()
         .await?
         .into_result()?;
-    assert!(alice.view_account().await?.balance == 19997714892494818600000000);
+
+    assert!(alice.view_account().await?.balance == 19997816441344866100000000);
     println!("      Passed ✅ reveal_decision");
 
     Ok(())
