@@ -23,7 +23,7 @@ import { useForm } from "react-hook-form";
 const BOATLOAD_OF_GAS = utils.format.parseNearAmount("0.00000000003")!;
 
 export function Playground() {
-  const { selector, modal, accountId } = useWalletSelector();
+  const { selector, accountId } = useWalletSelector();
   const params = useParams();
   const [game, SetGame] = useState<Game>();
   const {
@@ -67,7 +67,7 @@ export function Playground() {
   function SubmitDecision() {
     return (
       <form onSubmit={handleSubmit(onSubmitDecision)}>
-        <FormControl isInvalid={errors.decision_hash}>
+        <FormControl isInvalid={Boolean(errors.decision_hash)}>
           <FormLabel htmlFor="decision_hash">Decision Hash</FormLabel>
           <Input
             id="decision_hash"
@@ -77,11 +77,12 @@ export function Playground() {
             })}
           />
           <FormErrorMessage>
-            {errors.decision_hash && errors.decision_hash.message}
+            {String(errors.decision_hash) &&
+              String(errors?.decision_hash?.message)}
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={errors.salt_hash}>
+        <FormControl isInvalid={Boolean(errors.salt_hash)}>
           <FormLabel htmlFor="decision_hash">Salt Hash</FormLabel>
           <Input
             id="salt_hash"
@@ -91,7 +92,7 @@ export function Playground() {
             })}
           />
           <FormErrorMessage>
-            {errors.salt_hash && errors.salt_hash.message}
+            {String(errors.salt_hash) && String(errors?.salt_hash?.message)}
           </FormErrorMessage>
         </FormControl>
 
@@ -135,7 +136,7 @@ export function Playground() {
   function RevealDecision() {
     return (
       <form onSubmit={handleSubmit(onRevealDecision)}>
-        <FormControl isInvalid={errors.salt}>
+        <FormControl isInvalid={Boolean(errors.salt)}>
           <FormLabel htmlFor="salt">Salt</FormLabel>
           <Input
             id="salt"
@@ -143,9 +144,6 @@ export function Playground() {
               required: true,
             })}
           />
-          <FormErrorMessage>
-            {errors.salt && errors.salt.message}
-          </FormErrorMessage>
         </FormControl>
         <Button
           mt={4}
@@ -220,7 +218,7 @@ export function Playground() {
       .then((res: any) => {
         SetGame(JSON.parse(Buffer.from(res.result).toString()));
       })
-      .catch((err) => {
+      .catch(() => {
         console.log("err,to 404");
       });
     // console.log();

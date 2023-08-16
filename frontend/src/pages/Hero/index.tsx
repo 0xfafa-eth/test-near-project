@@ -17,7 +17,7 @@ import { Game } from "../../type";
 import { useNavigate } from "react-router-dom";
 
 export function Hero() {
-  const { selector, modal, accountId } = useWalletSelector();
+  const { selector } = useWalletSelector();
   const [list, SetList] = useState<Array<Game>>([]);
   const navigate = useNavigate();
   useEffect(() => {
@@ -30,7 +30,7 @@ export function Hero() {
         account_id: CONTRACT_ID,
         method_name: "get_latest_some_games",
         args_base64: Buffer.from(JSON.stringify({ amount: "10" })).toString(
-          "base64",
+          "base64"
         ),
         finality: "optimistic",
       })
@@ -43,7 +43,7 @@ export function Hero() {
           vec_game.map((value: { game_id: never }, index: string | number) => {
             value.game_id = vec_id[index];
             return value;
-          }) as any,
+          }) as any
         );
       });
   }, []);
@@ -75,7 +75,7 @@ export function Hero() {
                 <Text>{`Player 2: ${item?.player_two.play_address}`}</Text>
 
                 <Text marginTop={"20px"} color={"Red"}>{`${get_status(
-                  item,
+                  item
                 )}`}</Text>
               </CardBody>
               <CardFooter>

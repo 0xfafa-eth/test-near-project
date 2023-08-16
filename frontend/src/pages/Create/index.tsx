@@ -5,7 +5,6 @@ import {
   CardFooter,
   CardHeader,
   FormControl,
-  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -61,7 +60,7 @@ export function Create() {
 
           <CardBody>
             <form onSubmit={handleSubmit(onCreateGame)}>
-              <FormControl isInvalid={errors.player_one_address}>
+              <FormControl isInvalid={Boolean(errors.player_one_address)}>
                 <FormLabel htmlFor="player_one_address">
                   Player One Address
                 </FormLabel>
@@ -71,13 +70,9 @@ export function Create() {
                     required: true,
                   })}
                 />
-                <FormErrorMessage>
-                  {errors.player_one_address &&
-                    errors.player_one_address.message}
-                </FormErrorMessage>
               </FormControl>
 
-              <FormControl isInvalid={errors.player_two_address}>
+              <FormControl isInvalid={Boolean(errors.player_two_address)}>
                 <FormLabel htmlFor="player_two_address">
                   Player Two Address
                 </FormLabel>
@@ -87,10 +82,6 @@ export function Create() {
                     required: true,
                   })}
                 />
-                <FormErrorMessage>
-                  {errors.player_two_address &&
-                    errors.player_two_address.message}
-                </FormErrorMessage>
               </FormControl>
               <Button
                 mt={4}
