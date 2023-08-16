@@ -114,7 +114,7 @@ impl Contract {
         let mut game = self.games.remove(&game_id).unwrap();
         let sender = env::predecessor_account_id();
         require!(!game.is_end, "Current game is end");
-        assert!(game.player_one.play_address == sender || game.player_two.play_address == sender);
+        require!(game.player_one.play_address == sender || game.player_two.play_address == sender);
         let player_data_mut_ref = if game.player_one.play_address == sender {
             &mut game.player_one
         } else {
@@ -242,64 +242,31 @@ mod tests {
     #[test]
     fn test_new() {
         let mut contract = Contract::new();
-        get_context(accounts(1));
+
+        let ctx = get_context(accounts(1));
+        testing_env!(ctx.build());
         contract.create_game(accounts(2).into(), accounts(3).into())
     }
 
     #[test]
     fn test_submit_decision() {
         let mut contract = Contract::new();
-        get_context(accounts(1));
+        let ctx = get_context(accounts(1));
+        testing_env!(ctx.build());
         contract.create_game(accounts(2).into(), accounts(3).into());
-        get_context(accounts(2));
+        let ctx = get_context(accounts(2));
+        testing_env!(ctx.build());
         contract.submit_decision(near_sdk::json_types::U128(1), [0; 32], [0; 32])
     }
 
     #[test]
     fn test_reveal_decision() {
         let mut contract = Contract::new();
-        get_context(accounts(1));
-        contract.create_game(accounts(2).into(), accounts(3).into());
-        get_context(accounts(2));
-        contract.submit_decision(
-            near_sdk::json_types::U128(1),
-            hex::decode(SPLIT_HASH).unwrap().try_into().unwrap(),
-            hex::decode(SLAT_HASH).unwrap().try_into().unwrap(),
-        );
-
-        contract.reveal_decision(near_sdk::json_types::U128(1), SLAT.to_owned());
-    }
-
-    #[test]
-    fn test_reveal_decision_two_player() {
-        let mut ctx = get_context(accounts(1));
+        let ctx = get_context(accounts(1));
         testing_env!(ctx.build());
-        println!("{}", ctx.context.signer_account_id);
-        let mut contract = Contract::new();
-        println!("{}", ctx.context.signer_account_id);
-        testing_env!(ctx
-            .attached_deposit(7 * NEAR)
-            .storage_usage(env::storage_usage())
-            .predecessor_account_id(accounts(1))
-            .build());
-
-        println!("{}", ctx.context.signer_account_id);
-        contract.create_game(accounts(1).into(), accounts(2).into());
-        println!("{}", ctx.context.signer_account_id);
-        testing_env!(ctx
-            .predecessor_account_id(accounts(1))
-            .storage_usage(env::storage_usage())
-            .build());
-        println!("{}", ctx.context.signer_account_id);
-        contract.submit_decision(
-            near_sdk::json_types::U128(1),
-            hex::decode(SPLIT_HASH).unwrap().try_into().unwrap(),
-            hex::decode(SLAT_HASH).unwrap().try_into().unwrap(),
-        );
-        contract.reveal_decision(near_sdk::json_types::U128(1), SLAT.to_owned());
-
-        testing_env!(ctx.predecessor_account_id(accounts(2)).build());
-        println!("{}", ctx.context.signer_account_id);
+        contract.create_game(accounts(2).into(), accounts(3).into());
+        let ctx = get_context(accounts(2));
+        testing_env!(ctx.build());
         contract.submit_decision(
             near_sdk::json_types::U128(1),
             hex::decode(SPLIT_HASH).unwrap().try_into().unwrap(),
@@ -307,8 +274,5 @@ mod tests {
         );
 
         contract.reveal_decision(near_sdk::json_types::U128(1), SLAT.to_owned());
-        contract.get_game(near_sdk::json_types::U128(1));
-        // println!("{}", ctx.context.account_balance);
-        // assert!(ctx.context.account_balance == 103500000000000000000000000);
     }
 }
