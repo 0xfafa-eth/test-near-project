@@ -1,8 +1,7 @@
-near-blank-project
+# Split Or Steal
 ==================
-
-This app was initialized with [create-near-app]
-
+You can try on https://near-project.wgb5445.cc/
+ 
 
 Quick Start
 ===========
